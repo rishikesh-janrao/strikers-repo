@@ -1,7 +1,7 @@
 <?php
 
-namespace MetzWeb\Instagram;
+namespace striker\Insta;
 
-class InstagramException extends \Exception
+class InstaException extends \Exception
 {
 }

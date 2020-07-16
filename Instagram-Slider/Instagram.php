@@ -1,19 +1,6 @@
 <?php
 
-namespace striker\Instagram;
-
-/**
- * Instagram API class
- *
- * API Documentation: http://instagram.com/developer/
- * Class Documentation: https://github.com/cosenary/Instagram-PHP-API
- *
- * @author Christian Metz
- * @since 30.10.2011
- * @copyright Christian Metz - MetzWeb Networks 2011-2014
- * @version 2.2
- * @license BSD http://www.opensource.org/licenses/bsd-license.php
- */
+namespace striker\Insta;
 class Instagram
 {
     /**
@@ -94,7 +81,7 @@ class Instagram
      *
      * @return void
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     public function __construct($config)
     {
@@ -107,7 +94,7 @@ class Instagram
             // if you only want to access public data
             $this->setApiKey($config);
         } else {
-            throw new InstagramException('Error: __construct() - Configuration data is missing.');
+            throw new InstaException('Error: __construct() - Configuration data is missing.');
         }
     }
 
@@ -118,7 +105,7 @@ class Instagram
      *
      * @return string Instagram OAuth login URL
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     public function getLoginUrl($scopes = array('basic'))
     {
@@ -127,7 +114,7 @@ class Instagram
                 $scopes) . '&response_type=code';
         }
 
-        throw new InstagramException("Error: getLoginUrl() - The parameter isn't an array or invalid scope permissions used.");
+        throw new InstaException("Error: getLoginUrl() - The parameter isn't an array or invalid scope permissions used.");
     }
 
     /**
@@ -291,7 +278,7 @@ class Instagram
      *
      * @return mixed
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     public function modifyRelationship($action, $user)
     {
@@ -299,7 +286,7 @@ class Instagram
             return $this->_makeCall('users/' . $user . '/relationship', true, array('action' => $action), 'POST');
         }
 
-        throw new InstagramException('Error: modifyRelationship() | This method requires an action command and the target user id.');
+        throw new InstaException('Error: modifyRelationship() | This method requires an action command and the target user id.');
     }
 
     /**
@@ -509,7 +496,7 @@ class Instagram
      *
      * @return mixed
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     public function pagination($obj, $limit = 0)
     {
@@ -535,7 +522,7 @@ class Instagram
             return $this->_makeCall($function, $auth, array('cursor' => $obj->pagination->next_cursor, 'count' => $limit));
         }
 
-        throw new InstagramException("Error: pagination() | This method doesn't support pagination.");
+        throw new InstaException("Error: pagination() | This method doesn't support pagination.");
     }
 
     /**
@@ -571,7 +558,7 @@ class Instagram
      *
      * @return mixed
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     protected function _makeCall($function, $auth = false, $params = null, $method = 'GET')
     {
@@ -581,7 +568,7 @@ class Instagram
         } else {
             // if the call needs an authenticated user
             if (!isset($this->_accesstoken)) {
-                throw new InstagramException("Error: _makeCall() | $function - This method requires an authenticated users access token.");
+                throw new InstaException("Error: _makeCall() | $function - This method requires an authenticated users access token.");
             }
 
             $authMethod = '?access_token=' . $this->getAccessToken();
@@ -633,7 +620,7 @@ class Instagram
         $this->_xRateLimitRemaining = $headers['X-Ratelimit-Remaining'];
 
         if (!$jsonData) {
-            throw new InstagramException('Error: _makeCall() - cURL error: ' . curl_error($ch));
+            throw new InstaException('Error: _makeCall() - cURL error: ' . curl_error($ch));
         }
 
         curl_close($ch);
@@ -648,7 +635,7 @@ class Instagram
      *
      * @return mixed
      *
-     * @throws \MetzWeb\Instagram\InstagramException
+     * @throws \striker\Insta\InstaException
      */
     private function _makeOAuthCall($apiData)
     {
@@ -665,7 +652,7 @@ class Instagram
         $jsonData = curl_exec($ch);
 
         if (!$jsonData) {
-            throw new InstagramException('Error: _makeOAuthCall() - cURL error: ' . curl_error($ch));
+            throw new InstaException('Error: _makeOAuthCall() - cURL error: ' . curl_error($ch));
         }
 
         curl_close($ch);
@@ -816,13 +803,10 @@ class Instagram
     }
 
     /**
-     * Enforce Signed Header.
-     *
-     * @param bool $signedHeader
-     *
-     * @return void
+     * Enable Signed Header.
+     * Data Type : bool
      */
-    public function setSignedHeader($signedHeader)
+    public function enableSignedHeader($signedHeader)
     {
         $this->_signedheader = $signedHeader;
     }
