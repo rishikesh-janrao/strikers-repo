@@ -1,6 +1,6 @@
 <?php
 
-namespace MetzWeb\Instagram;
+namespace striker\Instagram;
 
 /**
  * Instagram API class
