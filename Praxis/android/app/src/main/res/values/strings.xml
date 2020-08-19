@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Praxis</string>
+    <string name="facebook_app_id">407239630252622</string>
+    <string name="fb_login_protocol_scheme">fb407239630252622</string>
+</resources>
