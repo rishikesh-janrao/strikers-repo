@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Animated, Easing} from 'react-native';
+import {View, StyleSheet, Animated, Easing, Image} from 'react-native';
 // import Animated, {Easing} from 'react-native-reanimated';
 
 const {SHAPE_DIMENSION, SHAPE_COLOR} = require('../shapes/Constants');
@@ -9,7 +9,7 @@ export class Logo extends React.Component {
     super(props);
     this.threshold = this.props.threshold;
     this.state = {
-      counter: 1,
+      counter: 0,
     };
     this.bgColor = this.props.color;
     this.animatedValue = new Animated.Value(0);
@@ -41,7 +41,7 @@ export class Logo extends React.Component {
       useNativeDriver: true,
       easing: Easing.in,
     }).start(() => {
-      if (this.state.counter != this.threshold) {
+      if (this.state.counter != this.threshold && this.threshold > 0) {
         this.state.counter++;
         var temp = this.measurements.point1;
         this.measurements.point1 = this.measurements.point2;
@@ -198,27 +198,39 @@ export class Logo extends React.Component {
 export class LogoSplash extends React.Component {
   constructor(props) {
     super(props);
-    this.animated = this.props.animated;
-    this.wait = this.props.waittime * 1000;
+    this.redirect = this.props.navigation.getParam('redirectTo', 'Drawer');
+    this.animated = this.props.navigation.getParam('animated', true);
+    this.wait = this.props.navigation.getParam('waittime', 3) * 1000;
     this.animatedValue = new Animated.Value(0);
+    this.animatedValue1 = new Animated.Value(0);
     this.scale = 0.38;
     this.scaleAnimated = 0.3;
   }
   componentDidMount() {
+    Animated.timing(this.animatedValue1, {
+      toValue: 4,
+      duration: this.wait + 1000,
+      useNativeDriver: true,
+    }).start((finished) => {
+      if (finished) {
+        // this.props.navigation.navigate('' + this.redirect);
+      }
+    });
     setInterval(() => {
       Animated.timing(this.animatedValue, {
         toValue: 1,
-        duration: 1000,
+        duration: this.wait / 2,
         useNativeDriver: true,
       }).start((finished) => {
         if (finished) {
-          console.log('Navigating...............');
+          // console.log('Navigating...............');
         }
       });
     }, this.wait);
   }
   render() {
     this.animatedValue.setValue(0);
+    this.animatedValue1.setValue(0);
     const opacity = this.animatedValue.interpolate({
       inputRange: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
       outputRange: [1, 0.9, 0.7, 0.5, 0.3, 0.1, 0],
@@ -231,20 +243,33 @@ export class LogoSplash extends React.Component {
     });
     this.scale = this.animatedValue.interpolate({
       inputRange: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
-      outputRange: [0.38, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+      outputRange: [0.4, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
     });
     this.scaleAnimated = this.animatedValue.interpolate({
       inputRange: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
-      outputRange: [0.38, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+      outputRange: [0.4, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
     });
     const zoomScale = this.animatedValue.interpolate({
       inputRange: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
       outputRange: [0, 10, 20, 30, 50, 100, 150, 2000],
     });
+
+    const scaleFooter = this.animatedValue1.interpolate({
+      inputRange: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+      outputRange: [0, 1, 1.8, 2.6, 1.8, 1, 0],
+    });
     return (
-      <View style={[styles.container, StyleSheet.absoluteFillObject]}>
+      <View style={[styles.container]}>
+        <View style={{flex: 0.3}}></View>
         {this.animated ? (
-          <Animated.View>
+          <Animated.View
+            style={{
+              flex: 0.6,
+              // borderColor: '#FFF',
+              // borderWidth: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <Animated.View
               style={[
                 styles.zoom,
@@ -268,20 +293,34 @@ export class LogoSplash extends React.Component {
                   },
                 ],
               }}>
-              <Logo threshold={1} color={'#FFF'} />
-              <Logo threshold={2} color={'#FFF'} />
-              <Logo threshold={3} color={'#FFF'} />
+              <Logo
+                threshold={
+                  this.props.waittime - 2 > 0 ? this.props.waittime - 2 : 0
+                }
+                color={'#FFF'}
+              />
+              <Logo
+                threshold={
+                  this.props.waittime - 1 > 1 ? this.props.waittime - 1 : 1
+                }
+                color={'#FFF'}
+              />
+              <Logo threshold={this.props.waittime} color={'#FFF'} />
             </Animated.View>
           </Animated.View>
         ) : (
           <Animated.View
             style={{
-              maxWidth: 200,
-              maxHeight: 400,
-              marginBottom: 0,
-              flex: 0.8,
+              flex: 0.6,
+              // borderColor: '#FFF',
+              // borderWidth: 1,
               justifyContent: 'center',
-              alignItems: 'center',
+              // alignItems: 'center',
+              transform: [
+                {
+                  scale: 1.2,
+                },
+              ],
             }}>
             <Animated.View
               style={[
@@ -294,7 +333,7 @@ export class LogoSplash extends React.Component {
                   ],
                 },
               ]}></Animated.View>
-            <Animated.Image
+            <Animated.View
               style={{
                 opacity: opacity,
                 transform: [
@@ -302,8 +341,11 @@ export class LogoSplash extends React.Component {
                     scale: this.scale,
                   },
                 ],
-              }}
-              source={require('../images/logo-blank.png')}></Animated.Image>
+              }}>
+              <Image
+                resizeMode="contain"
+                source={require('../images/logo-blank.png')}></Image>
+            </Animated.View>
           </Animated.View>
         )}
         <Animated.Text style={[styles.Header, {opacity: opacity}]}>
@@ -312,6 +354,20 @@ export class LogoSplash extends React.Component {
         <Animated.Text style={[styles.Vision, {opacity: opacity}]}>
           New way of working
         </Animated.Text>
+        <View style={[styles.footer]}>
+          <Animated.View
+            style={[
+              styles.bar,
+              {
+                opacity: opacityAnimated,
+                transform: [
+                  {
+                    scaleX: scaleFooter,
+                  },
+                ],
+              },
+            ]}></Animated.View>
+        </View>
       </View>
     );
   }
@@ -324,6 +380,18 @@ const styles = StyleSheet.create({
     height: SHAPE_DIMENSION,
     borderRadius: SHAPE_DIMENSION / 2,
     elevation: 10,
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0.1,
+  },
+  bar: {
+    width: 10,
+    height: 2,
+    // borderRadius: 10,
+    elevation: 10,
+    backgroundColor: '#FFF',
   },
   line: {
     position: 'absolute',
@@ -355,16 +423,18 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   zoom: {
+    width: 0,
+    height: 0,
     borderRadius: 50,
     position: 'absolute',
     borderColor: '#FFF',
-    borderWidth: 2,
+    borderWidth: 0.1,
     alignSelf: 'center',
     textAlignVertical: 'center',
     marginTop: 130,
     transform: [
       {
-        scale: 0,
+        scale: -1,
       },
     ],
   },
